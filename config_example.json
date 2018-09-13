@@ -1,0 +1,14 @@
+{	
+    "clientID": "<your client ID>",
+    "clientSecret": "<your client secret>"	,
+    "playlists": [
+		"<playlist 1 ID>",
+		"<playlist 2 ID>",
+		"<playlist 3 ID>",
+		"<playlist 4 ID>", 
+		"<playlist 5 ID>", 
+		"<playlist 6 ID>", 
+		"<playlist 7 ID>", 
+        "<playlist 8 ID>"
+    ]
+}
