@@ -11,7 +11,7 @@ import (
 
 const redirectURI = "http://localhost:8080/callback"
 
-// GetClient returns the spotify client using the API info provided in config.json
+// GetClient returns the spotify client using the API info provided in config.json.
 func GetClient() *spotify.Client {
 
 	auth.SetAuthInfo(config.ClientID, config.ClientSecret)
@@ -40,7 +40,7 @@ func completeAuth(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		log.Fatalf("State mismatch: %s != %s\n", st, state)
 	}
-	// use the token to get an authenticated client
+	// use the token to get an authenticated client.
 	client := auth.NewClient(tok)
 	w.Header().Set("Content-Type", "text/html")
 	fmt.Fprintf(w, "Login Completed!<script>window.close();</script>")
