@@ -7,7 +7,7 @@ That means, when you're craving a certain thing, it's either hoping suffle picks
 spotify-playlister hopes to solve that. It will go down your list of saved songs and find the ones you haven't sorted out yet. 
 Don't recongnize it by title? No problem, because you can play the song on the device you're currently listening on within the console.
 
-# Installaion
+# Installation
 
 If you don't have it, you'll need to [install Go](https://golang.org/doc/install). After that, just the following command:
 
