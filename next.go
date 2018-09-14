@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	currentTrackIndex = 0
-	savedTracks       *spotify.SavedTrackPage
+	currentTrackIndex = -1
 	sortedTracks      map[spotify.ID]bool
+	savedTracks       *spotify.SavedTrackPage
 )
 
 func initalizeSortedTracks(client *spotify.Client) {
@@ -27,45 +27,69 @@ func initalizeSortedTracks(client *spotify.Client) {
 
 // Next returns the next unsorted track that's been saved. Returns nil if none after the current.
 func Next(client *spotify.Client) *spotify.SavedTrack {
-	if savedTracks == nil {
-		var err error
-		savedTracks, err = client.CurrentUsersTracks()
-		if err != nil {
-			log.Fatal("next ", err)
-		}
-	}
+	var err error
 	if sortedTracks == nil {
 		initalizeSortedTracks(client)
 	}
 
 	currentTrackIndex++
-	for ; currentTrackIndex < len(savedTracks.Tracks); currentTrackIndex++ {
-		t := savedTracks.Tracks[currentTrackIndex]
-		if !sortedTracks[t.ID] {
-			return &t
+	opts := spotify.Options{Offset: &currentTrackIndex}
+
+	if currentTrackIndex < *opts.Offset || currentTrackIndex >= *opts.Offset+20 || savedTracks == nil {
+		savedTracks, err = client.CurrentUsersTracksOpt(&opts)
+	}
+
+	for ; err == nil && currentTrackIndex < savedTracks.Total; savedTracks, err = client.CurrentUsersTracksOpt(&opts) {
+		for ; currentTrackIndex < savedTracks.Offset+len(savedTracks.Tracks); currentTrackIndex++ {
+			t := savedTracks.Tracks[currentTrackIndex-savedTracks.Offset]
+			if !sortedTracks[t.ID] {
+				return &t
+			}
 		}
+
+		opts = spotify.Options{Offset: &currentTrackIndex}
+	}
+	if err != nil {
+		log.Fatal("next ", err)
 	}
 	return nil
 }
 
 // Previous returns the previous unsorted track that's been saved. Returns nil if none before the current.
 func Previous(client *spotify.Client) *spotify.SavedTrack {
-	if savedTracks == nil {
-		var err error
-		savedTracks, err = client.CurrentUsersTracks()
-		if err != nil {
-			log.Fatal("previous ", err)
-		}
-	}
+	var err error
 	if sortedTracks == nil {
 		initalizeSortedTracks(client)
 	}
+
 	currentTrackIndex--
-	for ; currentTrackIndex >= 0; currentTrackIndex-- {
-		t := savedTracks.Tracks[currentTrackIndex]
-		if !sortedTracks[t.ID] {
-			return &t
+	offset := currentTrackIndex - 19
+	if offset < 0 {
+		offset = 0
+	}
+
+	opts := spotify.Options{Offset: &offset}
+
+	if currentTrackIndex < *opts.Offset || currentTrackIndex >= *opts.Offset+20 || savedTracks == nil {
+		savedTracks, err = client.CurrentUsersTracksOpt(&opts)
+	}
+
+	for ; err == nil && currentTrackIndex >= 0; savedTracks, err = client.CurrentUsersTracksOpt(&opts) {
+		for ; currentTrackIndex >= savedTracks.Offset; currentTrackIndex-- {
+			t := savedTracks.Tracks[currentTrackIndex-savedTracks.Offset]
+			if !sortedTracks[t.ID] {
+				return &t
+			}
 		}
+
+		offset = currentTrackIndex - 19
+		if offset < 0 {
+			offset = 0
+		}
+		opts = spotify.Options{Offset: &offset}
+	}
+	if err != nil {
+		log.Fatal("previous ", err)
 	}
 	return nil
 }
