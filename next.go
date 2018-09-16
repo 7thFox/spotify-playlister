@@ -15,12 +15,19 @@ var (
 func initalizeSortedTracks(client *spotify.Client) {
 	sortedTracks = map[spotify.ID]bool{}
 	for _, p := range config.Playlists {
-		tracks, err := client.GetPlaylistTracks(p)
+		var err error
+		offset := 0
+		opts := spotify.Options{Offset: &offset}
+		for tracks, err := client.GetPlaylistTracksOpt(p, &opts, ""); err == nil && offset < tracks.Total; tracks, err = client.GetPlaylistTracksOpt(p, &opts, "") {
+
+			for _, t := range tracks.Tracks {
+				sortedTracks[t.Track.ID] = true
+			}
+			offset += len(tracks.Tracks)
+		}
+
 		if err != nil {
 			log.Fatal("initalizeSortedTracks ", err)
-		}
-		for _, t := range tracks.Tracks {
-			sortedTracks[t.Track.ID] = true
 		}
 	}
 }
