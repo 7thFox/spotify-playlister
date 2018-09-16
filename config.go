@@ -8,12 +8,12 @@ import (
 	"github.com/zmb3/spotify"
 )
 
-// Holds the data stored in confg.json.
+// Config holds the data stored in confg.json.
 type Config struct {
 	ClientID     string `json:"clientID"`
 	ClientSecret string `json:"clientSecret"`
 
-	/// The list of playlist ID's used for sorting
+	// The list of playlist ID's used for sorting
 	Playlists []spotify.ID `json:"playlists"`
 }
 
